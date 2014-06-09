@@ -28,7 +28,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'django>=1.5',
+        'django>=1.4.13',
         'South',
         'python-dateutil',
         'django-filer',
