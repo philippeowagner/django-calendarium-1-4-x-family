@@ -45,6 +45,11 @@ class ColorField(models.CharField):
 
 add_introspection_rules([], ["^calendarium\.models\.ColorField"])
 
+# Backwards compatible settings.AUTH_USER_MODEL
+auth_user_model = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
+
+
 
 class EventModelManager(models.Manager):
     """Custom manager for the ``Event`` model class."""
@@ -139,7 +144,7 @@ class Event(EventModelMixin):
     """
 
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        auth_user_model,
         verbose_name=_('Created by'),
         related_name='events',
         blank=True, null=True,
@@ -371,7 +376,7 @@ class Occurrence(EventModelMixin):
 
     """
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        auth_user_model,
         verbose_name=_('Created by'),
         related_name='occurrences',
         blank=True, null=True,
