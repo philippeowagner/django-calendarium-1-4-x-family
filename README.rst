@@ -59,3 +59,19 @@ Roadmap
 Check the issue tracker on github for milestones and features to come. If you
 have ideas or questions, please don't hesitate to open an issue on the issue
 tracker.
+
+
+Hacking
+-------
+
+Remove all tables manually 
+
+	SET FOREIGN_KEY_CHECKS = 0;
+	drop table calendarium_event;
+	drop table calendarium_eventcategory;
+	drop table calendarium_eventrelation;
+	drop table calendarium_occurrence;
+	drop table calendarium_rule;
+	SET FOREIGN_KEY_CHECKS = 1;
+	
+python manage.py sql calendarium

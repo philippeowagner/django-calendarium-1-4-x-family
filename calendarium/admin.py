@@ -14,7 +14,7 @@ class EventAdmin(admin.ModelAdmin):
     """Custom admin for the ``Event`` model."""
     model = Event
     fields = (
-        'title', 'start', 'end', 'description', 'category', 'created_by',
+        'owner', 'title', 'start', 'end', 'description', 'category', 'created_by',
         'rule', 'end_recurring_period', )
     list_display = (
         'title', 'start', 'end', 'category', 'created_by', 'rule',
@@ -27,7 +27,7 @@ class EventAdmin(admin.ModelAdmin):
 class EventCategoryAdmin(admin.ModelAdmin):
     """Custom admin to display a small colored square."""
     model = EventCategory
-    list_display = ('name', 'color', )
+    list_display = ('owner','name', 'color', )
     list_editable = ('color', )
 
 
