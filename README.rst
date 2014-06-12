@@ -1,3 +1,6 @@
+DO NOT USE THIS VERSION. THIS WONT WORK FOR YOU!!
+
+
 Django Calendarium
 ==================
 

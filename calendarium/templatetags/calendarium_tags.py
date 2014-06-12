@@ -3,6 +3,8 @@ from django.core.urlresolvers import reverse
 from django import template
 from django.utils.timezone import datetime, now, timedelta, utc
 
+from bpv.apps.history_info.middlewares import ThreadLocal
+
 from ..models import Event, EventCategory
 
 register = template.Library()
@@ -44,3 +46,26 @@ def render_upcoming_events(event_amount=5, category=None):
 def get_upcoming_events(amount=5, category=None):
     """Returns a list of upcoming events."""
     return _get_upcoming_events(amount=amount, category=category)
+
+
+
+def _get_upcoming_events_for_org(amount=5, category=None):
+    if not isinstance(category, EventCategory):
+        category = None
+    owner = ThreadLocal.get_current_org()
+    return Event.objects.get_occurrences(owner, now(), now() + timedelta(days=356), category)[:amount]
+
+
+@register.inclusion_tag('calendarium/upcoming_events.html')
+def render_upcoming_events_for_org(event_amount=5, category=None):
+    """Template tag to render a list of upcoming events."""
+    return {
+        'occurrences': _get_upcoming_events_for_org(
+            amount=event_amount, category=category),
+    }
+
+
+@register.assignment_tag
+def get_upcoming_events_for_org(amount=5, category=None):
+    """Returns a list of upcoming events."""
+    return _get_upcoming_events_for_org(amount=amount, category=category)
