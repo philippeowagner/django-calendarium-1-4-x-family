@@ -27,6 +27,8 @@ from calendarium.widgets import ColorPickerWidget
 from filer.fields.image import FilerImageField
 from south.modelsinspector import add_introspection_rules
 
+from organizations.models import Organization
+
 
 class ColorField(models.CharField):
     """Custom color field to display a color picker."""
@@ -133,7 +135,8 @@ class EventModelMixin(models.Model):
 class Event(EventModelMixin):
     """
     Hold the information about an event in the calendar.
-
+    
+    :owner: FK to the ``Organization``, who owns this event.
     :created_by: FK to the ``User``, who created this event.
     :category: FK to the ``EventCategory`` this event belongs to.
     :rule: FK to the definition of the recurrence of an event.
@@ -142,7 +145,8 @@ class Event(EventModelMixin):
     :image: Optional image of the event.
 
     """
-
+    owner = models.ForeignKey(Organization, help_text="Event owner")
+    
     created_by = models.ForeignKey(
         auth_user_model,
         verbose_name=_('Created by'),
@@ -289,6 +293,7 @@ class EventCategory(models.Model):
     :parent: Allows you to create hierarchies of event categories.
 
     """
+    owner = models.ForeignKey(Organization, help_text="Record owner", null=True, blank=True) # NOTE: this will be handled in a helper function. This could lead in a inconsistency when using the admin (will not happen in app... ).
     name = models.CharField(
         max_length=256,
         verbose_name=_('Name'),
