@@ -55,7 +55,7 @@ auth_user_model = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 class EventModelManager(models.Manager):
     """Custom manager for the ``Event`` model class."""
-    def get_occurrences(self, start, end, category=None):
+    def get_occurrences(self, owner, start, end, category=None):
         """Returns a list of events and occurrences for the given period."""
         # we always want the time of start and end to be at 00:00
         start = start.replace(minute=0, hour=0)
@@ -72,6 +72,7 @@ class EventModelManager(models.Manager):
         # end_recurring_period.
         # For events without a rule, I fetch only the relevant ones.
         qs = self.get_query_set()
+        qs = qs.filter(owner=owner)
         if category:
             qs = qs.filter(start__lt=end)
             relevant_events = qs.filter(
