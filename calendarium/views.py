@@ -25,7 +25,8 @@ from .models import EventCategory, Event, Occurrence
 from .settings import SHIFT_WEEKSTART
 from .utils import monday_of_week
 
-
+from bpv.apps.history_info.middlewares import ThreadLocal
+        
 class CategoryMixin(object):
     """Mixin to handle category filtering by category id."""
     def dispatch(self, request, *args, **kwargs):
@@ -102,6 +103,7 @@ class MonthView(CategoryMixin, TemplateView):
         return super(MonthView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        owner = ThreadLocal.get_current_org()
         firstweekday = 0 + SHIFT_WEEKSTART
         while firstweekday < 0:
             firstweekday += 7
@@ -116,8 +118,7 @@ class MonthView(CategoryMixin, TemplateView):
             year=self.year, month=self.month, day=1, tzinfo=utc
         ) + relativedelta(months=1)
 
-        all_occurrences = Event.objects.get_occurrences(
-            start, end, ctx.get('current_category'))
+        all_occurrences = Event.objects.get_occurrences(owner, start, end, ctx.get('current_category'))
         cal = calendar.Calendar()
         cal.setfirstweekday(firstweekday)
         for day in cal.itermonthdays(self.year, self.month):
@@ -170,6 +171,8 @@ class WeekView(CategoryMixin, TemplateView):
         return super(WeekView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        owner = ThreadLocal.get_current_org()
+        
         ctx = self.get_category_context()
         date = monday_of_week(self.year, self.week) + relativedelta(
             days=SHIFT_WEEKSTART)
@@ -178,6 +181,7 @@ class WeekView(CategoryMixin, TemplateView):
         start = date
         end = date + relativedelta(days=7 + SHIFT_WEEKSTART)
         all_occurrences = Event.objects.get_occurrences(
+            owner,
             start, end, ctx.get('current_category'))
         while day < 7 + SHIFT_WEEKSTART:
             current = False
@@ -225,8 +229,9 @@ class DayView(CategoryMixin, TemplateView):
         return super(DayView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        owner = ThreadLocal.get_current_org()
         ctx = self.get_category_context()
-        occurrences = Event.objects.get_occurrences(
+        occurrences = Event.objects.get_occurrences( owner,
             self.date, self.date, ctx.get('current_category'))
         ctx.update({'date': self.date, 'occurrences': occurrences})
         return ctx
@@ -359,6 +364,7 @@ class UpcomingEventsAjaxView(CategoryMixin, ListView):
 
     def get_queryset(self):
         qs_kwargs = {
+            'owner': ThreadLocal.get_current_org(),
             'start': now(),
             'end': now() + timedelta(365),
         }
